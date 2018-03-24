@@ -9,9 +9,9 @@ import {
   StackNavigator,
 } from 'react-navigation'
 
-import SearchPage from './SearchPage';
-import SearchResults from './SearchResults';
-import PropertyView from './PropertyView';
+import SearchPage from './Screens/SearchPage';
+import SearchResults from './Screens/SearchResults';
+import PropertyView from './Screens/PropertyView';
   
 const App = StackNavigator({
   Home: { screen: SearchPage },
