@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+
 import {
   StackNavigator,
 } from 'react-navigation'
@@ -18,4 +13,5 @@ const App = StackNavigator({
   Results : { screen: SearchResults },
   Property: { screen: PropertyView},
 });
+
 export default App;
