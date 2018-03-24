@@ -2,6 +2,9 @@
 #
 .DS_Store
 
+# Hide API_KEY
+src/config.js
+
 # Xcode
 #
 build/

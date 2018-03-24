@@ -11,7 +11,7 @@ import {
 
 export default class PropertyView extends Component {
   static navigationOptions = {
-    title: 'Details',
+    //title: 'Details',
   };
 
   render() {

@@ -11,11 +11,16 @@ import {
   Image,
 } from 'react-native'
 
+import config from '../config.js';
+
 function urlForQueryAndPage(key, value, pageNumber) {
   
   var querystring = encodeURIComponent(value.trim())
+  const API_KEY = config.API_KEY;
 
-  return 'https://api.themoviedb.org/3/search/multi?api_key=f5c5a37d162f05af94479447a85ce10d&language=en-US&query=' + querystring + '&page=1&include_adult=false';
+  console.log(API_KEY);
+
+  return 'https://api.themoviedb.org/3/search/multi?api_key=' + API_KEY + '&language=en-US&query=' + querystring + '&page=1&include_adult=false';
 }
 
 export default class SearchPage extends Component<{}> {
