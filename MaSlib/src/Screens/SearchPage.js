@@ -9,6 +9,8 @@ import {
   Button,
   ActivityIndicator,
   Image,
+  TouchableHighlight,
+  ImageBackground,
 } from 'react-native'
 
 import config from '../config.js';
@@ -75,29 +77,34 @@ export default class SearchPage extends Component<{}> {
     const spinner = this.state.isLoading ?
     <ActivityIndicator size='large'/> : null;
 
+    const imgUrl = 'https://www.themoviedb.org/static_cache/v4/logos/312x276-primary-green-74212f6247252a023be0f02a5a45794925c3689117da9d20ffe47742a665c518.png';
+
     console.log('SearchPage.render')
     return (
-      <View style={styles.container}>
-        <Text style={styles.description}>
-          Search for movies and tv series!
-        </Text>
+      <ImageBackground source={require('../assets/529113.jpg')} style={styles.container}>
+        <Image
+          style={{width: 312, height: 276}}
+          source = {{uri: imgUrl}} />
         <View style={styles.flowRight}>
-    <TextInput
-      underlineColorAndroid={'transparent'}
-      style={styles.searchInput}
-      value={this.state.searchString}
-      onChange={this._onSearchTextChanged}
-      placeholder='Search via title'
-    />
-    <Button
-      onPress={this._onSearchPressed}
-      color='#48BBEC'
-      title='Go'
-    />
-    </View>
-    {spinner}
-    <Text style={styles.description}>{this.state.message}</Text>
-  </View>
+          <TextInput
+            underlineColorAndroid={'transparent'}
+            style={styles.searchInput}
+            value={this.state.searchString}
+            onChange={this._onSearchTextChanged}
+            placeholder='Type here.'
+            placeholderTextColor='#ffffff'
+        />
+    
+        <TouchableHighlight onPress={this._onSearchPressed} underlayColor={'#643e4044'}>
+          <Image
+            style={{width: 50, height: 44}}
+            source={{uri: imgUrl}}
+          />
+        </TouchableHighlight>
+      </View>
+      {spinner}
+      <Text style={styles.description}>{this.state.message}</Text>
+    </ImageBackground>
     );
   }
 }
@@ -107,12 +114,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 18,
     textAlign: 'center',
-    color: '#656565'
+    //color: '#656565',
+    color: '#FFFFFF',
   },
   container: {
-    padding: 30,
-    marginTop: 65,
+    flex: 1,
+    width: null,
+    height: null,
+    //justifyContent: 'center',
+    alignSelf: 'stretch',
     alignItems: 'center',
+    paddingTop: 80,
+    paddingLeft: 10,
+    paddingRight: 10,
+    backgroundColor: '#FFFFFF',
   },
 
   flowRight: {
@@ -127,9 +142,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     fontSize: 18,
     borderWidth: 1,
-    borderColor: '#48BBEC',
+    borderColor: '#01d277',
     borderRadius: 8,
-    color: '#48BBEC',
+    color: '#FFFFFF',
+
   },
   image: {
     height: 217,

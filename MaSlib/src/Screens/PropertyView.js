@@ -12,6 +12,10 @@ import {
 export default class PropertyView extends Component {
   static navigationOptions = {
     //title: 'Details',
+    headerStyle: {
+      backgroundColor: '#22425F',
+    },
+    headerTintColor: '#FFFFFF',
   };
 
   render() {

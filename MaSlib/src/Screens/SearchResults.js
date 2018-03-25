@@ -50,6 +50,10 @@ class ListItem extends React.PureComponent {
 export default class SearchResults extends Component {
   static navigationOptions = {
     title: 'Results',
+    headerStyle: {
+      backgroundColor: '#22425F',
+    },
+    headerTintColor: '#FFFFFF',
   };
 
   _keyExtractor = (item, index) => index;
