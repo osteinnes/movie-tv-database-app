@@ -39,7 +39,7 @@ import {
 import config from '../config.js';
 
 
-export default class PropertyView extends Component {
+export default class SuggestionView extends Component {
   static navigationOptions = {
     //title: 'Details',
     headerStyle: {
@@ -65,18 +65,22 @@ export default class PropertyView extends Component {
 
     const { params } = this.props.navigation.state;
     var imgUrl = 'https://image.tmdb.org/t/p/w500' + params.property.poster_path;
+
+    var title = this._determineMediaType(params.media_type, params.property);
+
+    console.log(title);
+
     this.setState({
-      media_type: params.property.media_type,
-      title: this._determineMediaType(params.property.media_type, params),
+      media_type: params.media_type,
+      title: title,
       country: params.property.origin_country,
       summary: params.property.overview,
-      titleText: this._determineTitleText(params.property.origin_country, this._determineMediaType(params.property.media_type, params)),
+      titleText: this._determineTitleText(params.property.origin_country, this._determineMediaType(params.media_type, params)),
       imgurl: imgUrl,
     })
-
-
-    var recommended = _urlRecommendedMedia(params.property.id, params.property.media_type);
-
+console.log(params.media_type);
+    var recommended = _urlRecommendedMedia(params.property.id, params.media_type);
+    console.log(recommended);
     fetch(recommended)
     .then(response => response.json())
     .then(json => this._handleResponse(json))
@@ -121,9 +125,9 @@ export default class PropertyView extends Component {
 
   _determineMediaType = (media_type, params) => {
     if (media_type == 'tv') {
-      var title = params.property.name;
+      var title = params.name;
     } else if (media_type == 'movie') {
-      var title = params.property.title;
+      var title = params.title;
     }
     return title;
   };
@@ -164,9 +168,9 @@ export default class PropertyView extends Component {
     >
       <View style={{ minHeight: 251,backgroundColor: '#3e4144' }}>
         <TriggeringView onHide={() => console.log('text hidden')}>
-          <Text style={styles.title}>{this.state.titleText}</Text>
+          <Text style={styles.title}>{this.state.title}</Text>
           <Text style={styles.text}>{this.state.summary}</Text>
-          {doDrawTextIfSimilar(this.state.similar, this.state)}
+          {doDrawTextIfSimilar(this.state.similar)}
 
         </TriggeringView>
 
@@ -196,9 +200,9 @@ function _urlRecommendedMedia(id, mediaType) {
   return queryString;
 };
 
-function doDrawTextIfSimilar(similar, state){
+function doDrawTextIfSimilar(similar){
   if (similar == true) {
-    return(<Text style={styles.suggestionText}>Recommended if you enjoyed {state.title}</Text>);
+    return(<Text style={styles.title}>Similar</Text>);
   } else {
     return null;
   }
@@ -354,9 +358,4 @@ const styles = StyleSheet.create({
     margin: 5,
     color: '#656565'
   },
-  suggestionText: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  }
 });
