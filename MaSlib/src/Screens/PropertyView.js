@@ -38,13 +38,38 @@ export default class PropertyView extends Component {
         rSe: '',
         rTh: '',
         rFo: '',
-        similar: false,
+        similar: '',
       };
+  }
+
+  componentWillMount() {
+
+    const { params } = this.props.navigation.state;
+    var imgUrl = 'https://image.tmdb.org/t/p/w500' + params.property.poster_path;
+    this.setState({
+      media_type: params.property.media_type,
+      title: this._determineMediaType(params.property.media_type, params),
+      country: params.property.origin_country,
+      summary: params.property.overview,
+      titleText: this._determineTitleText(params.property.origin_country, this._determineMediaType(params.property.media_type, params)),
+      imgurl: imgUrl,
+    })
+
+
+    var recommended = _urlRecommendedMedia(params.property.id, params.property.media_type);
+
+    fetch(recommended)
+    .then(response => response.json())
+    .then(json => this._handleResponse(json))
+    .catch(error =>
+     console.log(error)
+   );
+
   }
 
   _handleResponse = (response) => {
 
-    if(response.total_results > 0) {
+    if(response.total_results >= 5) {
        this.setState({
          rFi: response.results[1],
          rSe: response.results[2],
@@ -52,14 +77,13 @@ export default class PropertyView extends Component {
          rFo: response.results[4],
          similar: true,
        });
-
+       console.log('similar skal være trye')
     } else {
       this.setState({
         similar: false,
-      });
+      })
     }
 
-    console.log(response.status_code);
 
   };
 
@@ -95,61 +119,15 @@ export default class PropertyView extends Component {
  };
 
   render() {
-    const { params } = this.props.navigation.state;
-    var media_type = params.property.media_type;
-    var title = this._determineMediaType(media_type, params);
-    var country = params.property.origin_country;
-    var summary = params.property.overview;
-    var titleText = this._determineTitleText(country, title);
 
+    console.log(this.state.Similar);
 
-
-
-
-    console.log('heiiiiia');
-
-
-    console.log(params.property);
-
-    var imgurl = 'https://image.tmdb.org/t/p/w500' + params.property.poster_path;
-
-    console.log(title)
-
-    var recommended = _urlRecommendedMedia(params.property.id, media_type);
-
-    fetch(recommended)
-    .then(response => response.json())
-    .then(json => this._handleResponse(json))
-    .catch(error =>
-     console.log(error)
-   );
-
-
-    console.log(recommended)
-
-if (this.state.similar) {
-    var firstRecommendedTitle = this.state.rFi.title;
-    var firstRecommendedUri = this.state.rFi.poster_path;
-    var firstRecommendedDescription = this.state.rFi.overview;
-
-    var secondRecommendedTitle = this.state.rSe.title;
-    var secondRecommendedUri = this.state.rSe.poster_path;
-    var secondRecommendedDescription = this.state.rSe.overview;
-
-    var thirdRecommendedTitle = this.state.rTh.title;
-    var thirdRecommendedUri = this.state.rTh.poster_path;
-    var thirdRecommendedDescription = this.state.rTh.overview;
-
-    var fourthRecommendedTitle = this.state.rFo.title;
-    var fourthRecommendedUri = this.state.rFo.poster_path;
-    var fourthRecommendedDescription = this.state.rFo.overview;
-}
     return (
     <HeaderImageScrollView
       maxHeight={500}
       minHeight={80}
       fadeOutForeground
-      headerImage={{uri: imgurl}}
+      headerImage={{uri: this.state.imgurl}}
 
       overScrollMode="never"
       overlayColor="#22425F"
@@ -161,83 +139,16 @@ if (this.state.similar) {
       )}
       foregroundParallaxRatio={3}
     >
-      <View style={{ backgroundColor: '#3e4144' }}>
+      <View style={{ minHeight: 251,backgroundColor: '#3e4144' }}>
         <TriggeringView onHide={() => console.log('text hidden')}>
-          <Text style={styles.title}>{titleText}</Text>
-          <Text style={styles.text}>{summary}</Text>
-          <Text style={styles.title}>Similar</Text>
+          <Text style={styles.title}>{this.state.titleText}</Text>
+          <Text style={styles.text}>{this.state.summary}</Text>
+          {doDrawTextIfSimilar(this.state.similar)}
 
         </TriggeringView>
 
       </View>
-              <Content>
-              {this.state.similar}
-              <Grid style={{backgroundColor: '#3e4144'}}>
-                <Col>
-                  <TouchableHighlight onPress={this.onPress}>
-                    <Row>
-                        <Card>
-                          <CardItem header style={styles.cardItems}>
-                              <Text style ={styles.headerText}>
-                                {firstRecommendedTitle}
-                              </Text>
-                          </CardItem>
-                            <CardItem>
-                            <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + firstRecommendedUri}}/>
-                            </CardItem>
-                        </Card>
-                    </Row>
-                  </TouchableHighlight>
-
-                  <TouchableHighlight onPress={this.onPress}>
-                    <Row>
-                        <Card>
-                          <CardItem header style={styles.cardItems}>
-                              <Text style ={styles.headerText}>
-                                {secondRecommendedTitle}
-                              </Text>
-                          </CardItem>
-                            <CardItem>
-                            <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + secondRecommendedUri}}/>
-                            </CardItem>
-                        </Card>
-                    </Row>
-                  </TouchableHighlight>
-                </Col>
-
-                <Col>
-                <TouchableHighlight onPress={this.onPress}>
-                  <Row>
-                      <Card>
-                        <CardItem header style={styles.cardItems}>
-                            <Text style ={styles.headerText}>
-                              {thirdRecommendedTitle}
-                            </Text>
-                        </CardItem>
-                          <CardItem>
-                          <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + thirdRecommendedUri}}/>
-                          </CardItem>
-                      </Card>
-                  </Row>
-                </TouchableHighlight>
-
-                <TouchableHighlight onPress={this.onPress}>
-                  <Row>
-                      <Card>
-                        <CardItem header style={styles.cardItems}>
-                            <Text style ={styles.headerText}>
-                              {fourthRecommendedTitle}
-                            </Text>
-                        </CardItem>
-                          <CardItem>
-                          <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + fourthRecommendedUri}}/>
-                          </CardItem>
-                      </Card>
-                  </Row>
-                </TouchableHighlight>
-                </Col>
-              </Grid>
-        </Content>
+      {doDrawSimilar(this.state.similar, this.state)}
       </HeaderImageScrollView>
 
 
@@ -247,6 +158,14 @@ if (this.state.similar) {
 
 //////////////////////////////////////////////////////////
 
+
+function doDrawTextIfSimilar(similar){
+  if (similar == true) {
+    return(<Text style={styles.title}>Similar</Text>);
+  } else {
+    return null;
+  }
+}
 
 function _urlRecommendedMedia(id, mediaType) {
 
@@ -263,6 +182,83 @@ function _urlRecommendedMedia(id, mediaType) {
   return queryString;
 };
 
+function doDrawSimilar(similar, state) {
+  if (similar == true) {
+    return(<Content>
+    <Grid style={{backgroundColor: '#3e4144'}}>
+      <Col>
+        <TouchableHighlight>
+          <Row>
+              <Card>
+                <CardItem header style={styles.cardItems}>
+                    <Text style ={styles.headerText}>
+                      {state.rFi.title}
+                    </Text>
+                </CardItem>
+                  <CardItem>
+                  <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rFi.poster_path}}/>
+                  </CardItem>
+              </Card>
+          </Row>
+        </TouchableHighlight>
+
+        <TouchableHighlight>
+          <Row>
+              <Card>
+                <CardItem header style={styles.cardItems}>
+                    <Text style ={styles.headerText}>
+                      {state.rSe.title}
+                    </Text>
+                </CardItem>
+                  <CardItem>
+                  <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rSe.poster_path}}/>
+                  </CardItem>
+              </Card>
+          </Row>
+        </TouchableHighlight>
+      </Col>
+
+      <Col>
+      <TouchableHighlight>
+        <Row>
+            <Card>
+              <CardItem header style={styles.cardItems}>
+                  <Text style ={styles.headerText}>
+                    {state.rTh.title}
+                  </Text>
+              </CardItem>
+                <CardItem>
+                <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rTh.poster_path}}/>
+                </CardItem>
+            </Card>
+        </Row>
+      </TouchableHighlight>
+
+      <TouchableHighlight>
+        <Row>
+            <Card>
+              <CardItem header style={styles.cardItems}>
+                  <Text style ={styles.headerText}>
+                    {state.rFo.title}
+                  </Text>
+              </CardItem>
+                <CardItem>
+                <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rFo.poster_path}}/>
+                </CardItem>
+            </Card>
+        </Row>
+      </TouchableHighlight>
+      </Col>
+    </Grid>
+</Content>);
+
+} else {
+  return null;
+}
+}
+
+
+
 
 
 
@@ -272,7 +268,7 @@ function _urlRecommendedMedia(id, mediaType) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10
+    marginTop: 10,
   },
   cardItems: {
     alignSelf: 'center',
