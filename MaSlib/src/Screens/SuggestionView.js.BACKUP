@@ -1,0 +1,83 @@
+<Content>
+<Grid style={{backgroundColor: '#3e4144'}}>
+  <Col style={{paddingLeft: 5}}>
+    <TouchableHighlight onPress={() =>
+      props.navigation.navigate(
+        'Suggestion', {property: state.rFi, media_type: state.media_type}
+      )
+    }>
+      <Row>
+          <Card>
+            <CardItem header style={styles.cardItems}>
+                <Text style ={styles.headerText}>
+                  {state.rFiTitle}
+                </Text>
+            </CardItem>
+              <CardItem>
+              <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rFi.poster_path}}/>
+              </CardItem>
+          </Card>
+      </Row>
+    </TouchableHighlight>
+
+    <TouchableHighlight onPress={() =>
+      props.navigation.navigate(
+        'Suggestion', {property: state.rSe, media_type: state.media_type}
+      )
+    }>
+      <Row>
+          <Card>
+            <CardItem header style={styles.cardItems}>
+                <Text style ={styles.headerText}>
+                  {state.rSeTitle}
+                </Text>
+            </CardItem>
+              <CardItem>
+              <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rSe.poster_path}}/>
+              </CardItem>
+          </Card>
+      </Row>
+    </TouchableHighlight>
+  </Col>
+
+  <Col style={{paddingRight: 5}}>
+  <TouchableHighlight onPress={() =>
+    props.navigation.navigate(
+      'Suggestion', {property: state.rTh, media_type: state.media_type}
+    )
+  }>
+    <Row>
+        <Card>
+          <CardItem header style={styles.cardItems}>
+              <Text style ={styles.headerText}>
+                {state.rThTitle}
+              </Text>
+          </CardItem>
+            <CardItem>
+            <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rTh.poster_path}}/>
+            </CardItem>
+        </Card>
+    </Row>
+  </TouchableHighlight>
+
+  <TouchableHighlight onPress={() =>
+    props.navigation.navigate(
+      'Suggestion', {property: state.rFo, media_type: state.media_type}
+    )
+  }>
+    <Row>
+        <Card>
+          <CardItem header style={styles.cardItems}>
+              <Text style ={styles.headerText}>
+                {state.rFoTitle}
+              </Text>
+          </CardItem>
+            <CardItem>
+            <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rFo.poster_path}}/>
+            </CardItem>
+        </Card>
+    </Row>
+  </TouchableHighlight>
+  </Col>
+</Grid>
+</Content>

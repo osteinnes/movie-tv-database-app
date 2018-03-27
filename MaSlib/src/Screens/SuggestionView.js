@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   View,
-  Text,
   TextInput,
   ImageBackground,
   DrawerLayoutAndroid,
@@ -28,16 +27,18 @@ import {
   Thumbnail,
   Button,
   Icon,
+  IconNB,
+  DeckSwiper,
   Left,
   Body,
   Right,
   Footer,
   FooterTab,
-  Title
+  Title,
+  Text,
 } from 'native-base';
 
 import config from '../config.js';
-
 
 export default class SuggestionView extends Component {
   static navigationOptions = {
@@ -103,7 +104,34 @@ console.log(params.media_type);
          rThTitle: this._determinemediaTypeRec(this.state.media_type, response.results[3]),
          rFoTitle: this._determinemediaTypeRec(this.state.media_type, response.results[4]),
          similar: true,
+         cards: [
+           {
+             text: this._determinemediaTypeRec(this.state.media_type, response.results[1]),
+             name: "1/4",
+             image: response.results[1].poster_path,
+             description: response.results[1].overview,
+           },
+           {
+             text: this._determinemediaTypeRec(this.state.media_type, response.results[2]),
+             name: "2/4",
+             image: response.results[2].poster_path,
+             description: response.results[2].overview,
+           },
+           {
+             text: this._determinemediaTypeRec(this.state.media_type, response.results[3]),
+             name: "3/4",
+             image: response.results[3].poster_path,
+             description: response.results[3].overview,
+           },
+           {
+             text: this._determinemediaTypeRec(this.state.media_type, response.results[4]),
+             name: "4/4",
+             image: response.results[4].poster_path,
+             description: response.results[4].overview,
+           }
+         ],
        });
+
        console.log('similar skal være trye')
     } else {
       this.setState({
@@ -174,8 +202,11 @@ console.log(params.media_type);
 
         </TriggeringView>
 
-      </View>
-      {doDrawSimilar(this.state.similar, this.state, this.props)}
+       </View>
+
+        {doDrawSimilar(this.state.similar, this.props, this.state, this._deckSwiper)}
+
+
       </HeaderImageScrollView>
 
 
@@ -208,91 +239,72 @@ function doDrawTextIfSimilar(similar){
   }
 }
 
-function doDrawSimilar(similar, state, props) {
+
+
+
+
+function doDrawSimilar(similar, props, state, _deckSwiper) {
   if (similar == true) {
-    return(<Content>
-    <Grid style={{backgroundColor: '#3e4144'}}>
-      <Col style={{paddingLeft: 5}}>
-        <TouchableHighlight onPress={() =>
-          props.navigation.navigate(
-            'Suggestion', {property: state.rFi, media_type: state.media_type}
-          )
-        }>
-          <Row>
-              <Card>
-                <CardItem header style={styles.cardItems}>
-                    <Text style ={styles.headerText}>
-                      {state.rFiTitle}
-                    </Text>
-                </CardItem>
-                  <CardItem>
-                  <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rFi.poster_path}}/>
-                  </CardItem>
-              </Card>
-          </Row>
-        </TouchableHighlight>
-
-        <TouchableHighlight onPress={() =>
-          props.navigation.navigate(
-            'Suggestion', {property: state.rSe, media_type: state.media_type}
-          )
-        }>
-          <Row>
-              <Card>
-                <CardItem header style={styles.cardItems}>
-                    <Text style ={styles.headerText}>
-                      {state.rSeTitle}
-                    </Text>
-                </CardItem>
-                  <CardItem>
-                  <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rSe.poster_path}}/>
-                  </CardItem>
-              </Card>
-          </Row>
-        </TouchableHighlight>
-      </Col>
-
-      <Col style={{paddingRight: 5}}>
-      <TouchableHighlight onPress={() =>
-        props.navigation.navigate(
-          'Suggestion', {property: state.rTh, media_type: state.media_type}
-        )
-      }>
-        <Row>
-            <Card>
-              <CardItem header style={styles.cardItems}>
-                  <Text style ={styles.headerText}>
-                    {state.rThTitle}
-                  </Text>
-              </CardItem>
+    return(
+      <Container style={styles.containerDeck}>
+      <View style={{ flex: 1, padding: 12 }}>
+          <DeckSwiper
+            ref={mr => (_deckSwiper = mr)}
+            dataSource={state.cards}
+            looping={true}
+            renderEmpty={() =>
+              <View style={{ alignSelf: "center" }}>
+                <Text>Over</Text>
+              </View>}
+            renderItem={item =>
+              <Card style={{ elevation: 3 }}>
                 <CardItem>
-                <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rTh.poster_path}}/>
+                  <Left>
+                    <Thumbnail source={item.image} />
+                    <Body>
+                      <Text>
+                        {item.text}
+                      </Text>
+                      <Text note>
+                       {item.description}
+                      </Text>
+                    </Body>
+                  </Left>
                 </CardItem>
-            </Card>
-        </Row>
-      </TouchableHighlight>
-
-      <TouchableHighlight onPress={() =>
-        props.navigation.navigate(
-          'Suggestion', {property: state.rFo, media_type: state.media_type}
-        )
-      }>
-        <Row>
-            <Card>
-              <CardItem header style={styles.cardItems}>
-                  <Text style ={styles.headerText}>
-                    {state.rFoTitle}
-                  </Text>
-              </CardItem>
+                <CardItem cardBody>
+                  <Image
+                    style={{
+                      resizeMode: "cover",
+                      width: null,
+                      flex: 1,
+                      height: 300
+                    }}
+                    source={{uri: 'https://image.tmdb.org/t/p/w500' +  item.image}}
+                  />
+                </CardItem>
                 <CardItem>
-                <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w500' + state.rFo.poster_path}}/>
+                  <Text>
+                    {item.name}
+                  </Text>
                 </CardItem>
-            </Card>
-        </Row>
-      </TouchableHighlight>
-      </Col>
-    </Grid>
-</Content>);
+              </Card>}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            flex: 1,
+            position: "absolute",
+            bottom: 50,
+            left: 0,
+            right: 0,
+            justifyContent: "space-between",
+            padding: 15
+          }}
+        >
+        </View>
+</Container>
+    );
 
 } else {
   return null;
@@ -312,6 +324,9 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 10,
   },
+  containerDeck: {
+    backgroundColor: '#3e4144',
+},
   cardItems: {
     alignSelf: 'center',
   },
