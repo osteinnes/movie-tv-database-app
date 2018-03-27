@@ -38,6 +38,8 @@ import {
   Text,
 } from 'native-base';
 
+import Carousel from 'react-native-snap-carousel';
+
 import config from '../config.js';
 
 export default class SuggestionView extends Component {
@@ -59,6 +61,7 @@ export default class SuggestionView extends Component {
         rTh: '',
         rFo: '',
         similar: '',
+        castPresent: false,
       };
   }
 
@@ -69,8 +72,6 @@ export default class SuggestionView extends Component {
 
     var title = this._determineMediaType(params.media_type, params.property);
 
-    console.log(title);
-
     this.setState({
       media_type: params.media_type,
       title: title,
@@ -79,9 +80,8 @@ export default class SuggestionView extends Component {
       titleText: this._determineTitleText(params.property.origin_country, this._determineMediaType(params.media_type, params)),
       imgurl: imgUrl,
     })
-console.log(params.media_type);
+
     var recommended = _urlRecommendedMedia(params.property.id, params.media_type);
-    console.log(recommended);
     fetch(recommended)
     .then(response => response.json())
     .then(json => this._handleResponse(json))
@@ -89,54 +89,32 @@ console.log(params.media_type);
      console.log(error)
    );
 
+   var cast = _urlCast(params.property.id, params.media_type);
+   fetch(cast)
+   .then(response => response.json())
+   .then(json => this._handleCastResponse(json))
+   .catch(error =>
+   console.log(error)
+  );
+
   }
+
+  _handleCastResponse = (response) => {
+
+    this.setState({
+      cast: response.cast,
+      castPresent: true,
+    });
+
+  };
 
   _handleResponse = (response) => {
 
     if(response.total_results >= 4) {
        this.setState({
-         rFi: response.results[1],
-         rSe: response.results[2],
-         rTh: response.results[3],
-         rFo: response.results[4],
-         rFiTitle: this._determinemediaTypeRec(this.state.media_type, response.results[1]),
-         rSeTitle: this._determinemediaTypeRec(this.state.media_type, response.results[2]),
-         rThTitle: this._determinemediaTypeRec(this.state.media_type, response.results[3]),
-         rFoTitle: this._determinemediaTypeRec(this.state.media_type, response.results[4]),
          similar: true,
-         cards: [
-           {
-             text: this._determinemediaTypeRec(this.state.media_type, response.results[1]),
-             name: "1/4",
-             image: response.results[1].poster_path,
-             description: response.results[1].overview,
-             id: response.results[1],
-           },
-           {
-             text: this._determinemediaTypeRec(this.state.media_type, response.results[2]),
-             name: "2/4",
-             image: response.results[2].poster_path,
-             description: response.results[2].overview,
-             id: response.results[2],
-           },
-           {
-             text: this._determinemediaTypeRec(this.state.media_type, response.results[3]),
-             name: "3/4",
-             image: response.results[3].poster_path,
-             description: response.results[3].overview,
-             id: response.results[3],
-           },
-           {
-             text: this._determinemediaTypeRec(this.state.media_type, response.results[4]),
-             name: "4/4",
-             image: response.results[4].poster_path,
-             description: response.results[4].overview,
-             id: response.results[4],
-           }
-         ],
+         recommended: response.results,
        });
-
-       console.log('similar skal være trye')
     } else {
       this.setState({
         similar: false,
@@ -178,9 +156,6 @@ console.log(params.media_type);
  };
 
   render() {
-
-    console.log(this.state.Similar);
-
     return (
     <HeaderImageScrollView
       maxHeight={500}
@@ -207,10 +182,8 @@ console.log(params.media_type);
         </TriggeringView>
 
        </View>
-
         {doDrawSimilar(this.state.similar, this.props, this.state, this._deckSwiper)}
-
-
+        {doDrawCastMembers(this.state.similar, this.props, this.state, this._deckSwiper2)}
       </HeaderImageScrollView>
 
 
@@ -219,6 +192,22 @@ console.log(params.media_type);
 }
 
 //////////////////////////////////////////////////////////
+
+function _urlCast(id, mediaType) {
+
+  const API_KEY = config.API_KEY;
+
+  if (mediaType == "movie") {
+    var queryString = 'https://api.themoviedb.org/3/movie/' + id + '/credits?api_key=' + API_KEY;
+  } else if (mediaType == "tv") {
+    var queryString = 'https://api.themoviedb.org/3/tv/' + id +'/credits?api_key=' + API_KEY;
+  } else {
+    var queryString = null;
+  }
+
+  return queryString;
+
+};
 
 function _urlRecommendedMedia(id, mediaType) {
 
@@ -244,17 +233,16 @@ function doDrawTextIfSimilar(similar){
 }
 
 
-
-
-
 function doDrawSimilar(similar, props, state, _deckSwiper) {
-  if (similar == true) {
+
+
+  if (similar == true && state.media_type == "tv") {
     return(
       <Container style={styles.containerDeck}>
       <View style={{ flex: 1, padding: 12 }}>
           <DeckSwiper
             ref={mr => (_deckSwiper = mr)}
-            dataSource={state.cards}
+            dataSource={state.recommended}
             looping={true}
             renderEmpty={() =>
               <View style={{ alignSelf: "center" }}>
@@ -263,19 +251,19 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
             renderItem={item =>
               <TouchableHighlight onPress={() =>
                 props.navigation.navigate(
-                  'Suggestion', {property: item.id, media_type: state.media_type}
+                  'Suggestion', {property: item, media_type: state.media_type}
                 )
               }>
               <Card style={{ elevation: 3 }}>
                 <CardItem>
                   <Left>
-                    <Thumbnail source={item.image} />
+                    <Thumbnail source={item.poster_path} />
                     <Body>
                       <Text>
-                        {item.text}
+                        {item.name}
                       </Text>
                       <Text note>
-                       {item.description}
+                       {item.overview}
                       </Text>
                     </Body>
                   </Left>
@@ -288,12 +276,159 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
                       flex: 1,
                       height: 300
                     }}
-                    source={{uri: 'https://image.tmdb.org/t/p/w500' +  item.image}}
+                    source={{uri: 'https://image.tmdb.org/t/p/w500' +  item.poster_path}}
                   />
                 </CardItem>
                 <CardItem>
                   <Text>
-                    {item.name}
+
+                  </Text>
+                </CardItem>
+              </Card>
+            </TouchableHighlight>
+            }
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            flex: 1,
+            position: "absolute",
+            bottom: 50,
+            left: 0,
+            right: 0,
+            justifyContent: "space-between",
+            padding: 15
+          }}
+        >
+        </View>
+</Container>
+    );
+
+} else if (similar == true && state.media_type == "movie") {
+  return(
+    <Container style={styles.containerDeck}>
+    <View style={{ flex: 1, padding: 12 }}>
+        <DeckSwiper
+          ref={mr => (_deckSwiper = mr)}
+          dataSource={state.recommended}
+          looping={true}
+          renderEmpty={() =>
+            <View style={{ alignSelf: "center" }}>
+              <Text>Over</Text>
+            </View>}
+          renderItem={item =>
+            <TouchableHighlight onPress={() =>
+              props.navigation.navigate(
+                'Suggestion', {property: item, media_type: state.media_type}
+              )
+            }>
+            <Card style={{ elevation: 3 }}>
+              <CardItem>
+                <Left>
+                  <Thumbnail source={item.poster_path} />
+                  <Body>
+                    <Text>
+                      {item.title}
+                    </Text>
+                    <Text note>
+                     {item.overview}
+                    </Text>
+                  </Body>
+                </Left>
+              </CardItem>
+              <CardItem cardBody>
+                <Image
+                  style={{
+                    resizeMode: "cover",
+                    width: null,
+                    flex: 1,
+                    height: 300
+                  }}
+                  source={{uri: 'https://image.tmdb.org/t/p/w500' +  item.poster_path}}
+                />
+              </CardItem>
+              <CardItem>
+                <Text>
+
+                </Text>
+              </CardItem>
+            </Card>
+          </TouchableHighlight>
+          }
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          flex: 1,
+          position: "absolute",
+          bottom: 50,
+          left: 0,
+          right: 0,
+          justifyContent: "space-between",
+          padding: 15
+        }}
+      >
+      </View>
+</Container>
+  );
+} else {
+  return null;
+}
+}
+
+
+
+function doDrawCastMembers(similar, props, state, _deckSwiper) {
+
+
+  if (state.castPresent == true) {
+    return(
+      <Container style={styles.containerDeck}>
+      <View style={{ flex: 1, padding: 12 }}>
+          <DeckSwiper
+            ref={mf => (_deckSwiper = mf)}
+            dataSource={state.cast}
+            looping={true}
+            renderEmpty={() =>
+              <View style={{ alignSelf: "center" }}>
+                <Text>Over</Text>
+              </View>}
+            renderItem={item =>
+              <TouchableHighlight onPress={() =>
+                props.navigation.navigate(
+                  'Suggestion', {property: item, media_type: state.media_type}
+                )
+              }>
+              <Card style={{ elevation: 3 }}>
+                <CardItem>
+                  <Left>
+                    <Thumbnail source={item.profile_path} />
+                    <Body>
+                      <Text>
+                        {item.name}
+                      </Text>
+                      <Text note>
+                       {item.character}
+                      </Text>
+                    </Body>
+                  </Left>
+                </CardItem>
+                <CardItem cardBody>
+                  <Image
+                    style={{
+                      resizeMode: "cover",
+                      width: null,
+                      flex: 1,
+                      height: 300
+                    }}
+                    source={{uri: 'https://image.tmdb.org/t/p/original' +  item.profile_path}}
+                  />
+                </CardItem>
+                <CardItem>
+                  <Text>
+
                   </Text>
                 </CardItem>
               </Card>
@@ -320,8 +455,7 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
 } else {
   return null;
 }
-}
-
+};
 
 
 
