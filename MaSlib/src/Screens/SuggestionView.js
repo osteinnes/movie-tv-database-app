@@ -38,7 +38,7 @@ import {
   Text,
 } from 'native-base';
 
-import Carousel from 'react-native-snap-carousel';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 
 import config from '../config.js';
 
@@ -177,13 +177,17 @@ export default class SuggestionView extends Component {
         <TriggeringView onHide={() => console.log('text hidden')}>
           <Text style={styles.title}>{this.state.title}</Text>
           <Text style={styles.text}>{this.state.summary}</Text>
-          {doDrawTextIfSimilar(this.state.similar)}
 
         </TriggeringView>
 
        </View>
-        {doDrawSimilar(this.state.similar, this.props, this.state, this._deckSwiper)}
-        {doDrawCastMembers(this.state.similar, this.props, this.state, this._deckSwiper2)}
+       {doDrawCastMembers(this.state.similar, this.props, this.state, this._deckSwiper2)}
+       <View style={{marginTop: -300, backgroundColor: '#3e4144' }}>
+         <TriggeringView onHide={() => console.log('text hidden')}>
+           {doDrawTextIfSimilar(this.state.similar)}
+         </TriggeringView>
+        </View>
+       {doDrawSimilar(this.state.similar, this.props, this.state, this._deckSwiper)}
       </HeaderImageScrollView>
 
 
@@ -358,19 +362,6 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
           }
         />
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          flex: 1,
-          position: "absolute",
-          bottom: 50,
-          left: 0,
-          right: 0,
-          justifyContent: "space-between",
-          padding: 15
-        }}
-      >
-      </View>
 </Container>
   );
 } else {
@@ -385,8 +376,8 @@ function doDrawCastMembers(similar, props, state, _deckSwiper) {
 
   if (state.castPresent == true) {
     return(
-      <Container style={styles.containerDeck}>
-      <View style={{ flex: 1, padding: 12 }}>
+      <Container style={styles.containerDeck2}>
+      <View style={{ flex: 1, padding: 2 }}>
           <DeckSwiper
             ref={mf => (_deckSwiper = mf)}
             dataSource={state.cast}
@@ -436,19 +427,6 @@ function doDrawCastMembers(similar, props, state, _deckSwiper) {
             }
           />
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            flex: 1,
-            position: "absolute",
-            bottom: 50,
-            left: 0,
-            right: 0,
-            justifyContent: "space-between",
-            padding: 15
-          }}
-        >
-        </View>
 </Container>
     );
 
@@ -456,10 +434,6 @@ function doDrawCastMembers(similar, props, state, _deckSwiper) {
   return null;
 }
 };
-
-
-
-
 
 //////////////////////////////////////////////////////////
 
@@ -471,7 +445,11 @@ const styles = StyleSheet.create({
   },
   containerDeck: {
     backgroundColor: '#3e4144',
-},
+  },
+  containerDeck2: {
+    backgroundColor: '#3e4144',
+    marginTop: -0,
+  },
   cardItems: {
     alignSelf: 'center',
   },
@@ -517,5 +495,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     margin: 5,
     color: '#656565'
+  },
+  imageContainer: {
+        flex: 1,
+        backgroundColor: 'white',
+        //borderTopLeftRadius: entryBorderRadius,
+        //borderTopRightRadius: entryBorderRadius
   },
 });
