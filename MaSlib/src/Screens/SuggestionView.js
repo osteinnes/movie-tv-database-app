@@ -110,24 +110,28 @@ console.log(params.media_type);
              name: "1/4",
              image: response.results[1].poster_path,
              description: response.results[1].overview,
+             id: response.results[1],
            },
            {
              text: this._determinemediaTypeRec(this.state.media_type, response.results[2]),
              name: "2/4",
              image: response.results[2].poster_path,
              description: response.results[2].overview,
+             id: response.results[2],
            },
            {
              text: this._determinemediaTypeRec(this.state.media_type, response.results[3]),
              name: "3/4",
              image: response.results[3].poster_path,
              description: response.results[3].overview,
+             id: response.results[3],
            },
            {
              text: this._determinemediaTypeRec(this.state.media_type, response.results[4]),
              name: "4/4",
              image: response.results[4].poster_path,
              description: response.results[4].overview,
+             id: response.results[4],
            }
          ],
        });
@@ -257,6 +261,11 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
                 <Text>Over</Text>
               </View>}
             renderItem={item =>
+              <TouchableHighlight onPress={() =>
+                props.navigation.navigate(
+                  'Suggestion', {property: item.id, media_type: state.media_type}
+                )
+              }>
               <Card style={{ elevation: 3 }}>
                 <CardItem>
                   <Left>
@@ -287,7 +296,9 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
                     {item.name}
                   </Text>
                 </CardItem>
-              </Card>}
+              </Card>
+            </TouchableHighlight>
+            }
           />
         </View>
         <View
