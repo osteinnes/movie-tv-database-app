@@ -66,20 +66,87 @@ export default class PersonView extends Component {
     .then(json => this._handleDetailsResponse(json))
     .catch(error =>
     console.log(error)
+    );
+
+    var biblographyUrl = _urlBiblography(params.id);
+    fetch(biblographyUrl)
+    .then(response => response.json())
+    .then(json => this._handleBiblographyResponse(json))
+    .catch(error =>
+    console.log(error)
   );
   }
 
-  _handleDetailsResponse(response) {
+  _handleBiblographyResponse(response) {
 
     this.setState({
-      details: response,
+      biblography: response,
     });
+
 
     console.log(response);
   };
 
+  _handleDetailsResponse(response) {
+    this.setState({
+      details: response,
+    });
+  };
+
+  onSelection = (item) => {
+    console.log(item.name)
+    this.props.navigation.navigate('Suggestion', {property: item, media_type: item.media_type});
+ }
+
+ renderItems = ({ item }) => {
+
+   console.log('THis is the item '+ item);
+ if (item.media_type == "tv") {
+   return(
+
+     <TouchableOpacity
+       onPress={() => this.onSelection(item)}>
+       <View style={{backgroundColor: '#3e4144'}}>
+       <Card>
+         <CardItem header style={styles.cardItems}>
+         <Text>
+           {item.name}
+         </Text>
+         </CardItem>
+           <CardItem style={{backgroundColor: 'transparent'}}>
+           <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w185' + item.poster_path}}/>
+           </CardItem>
+       </Card>
+       </View>
+     </TouchableOpacity>
+   )
+ } else if (item.media_type == "movie") {
+   return(
+
+     <TouchableOpacity
+       onPress={() => this.onSelection(item)}>
+       <View style={{backgroundColor: '#3e4144'}}>
+       <Card>
+         <CardItem header style={styles.cardItems}>
+         <Text>
+           {item.title}
+         </Text>
+         </CardItem>
+           <CardItem style={{backgroundColor: 'transparent'}}>
+           <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w185' + item.poster_path}}/>
+           </CardItem>
+       </Card>
+       </View>
+     </TouchableOpacity>
+   )
+ } else {
+   return null;
+ }
+ }
+
   render() {
 
+    console.log(this.state.biblography);
 
     return(
       <HeaderImageScrollView
@@ -102,6 +169,17 @@ export default class PersonView extends Component {
             <TriggeringView onHide={() => console.log('text hidden')}>
             <Text style={styles.title}>{this.state.details.name}</Text>
             <Text style={styles.text}>{this.state.details.biography}</Text>
+
+            <Text style={styles.title}>Biblography</Text>
+            <FlatList
+               horizontal
+               data={this.state.biblography}
+               renderItem={this.renderItems}
+               enableEmptySections
+               keyExtractor={item => item.key}
+               ItemSeparatorComponent={this.renderSeparator}
+             />
+
             </TriggeringView>
 
           </View>
@@ -116,6 +194,12 @@ export default class PersonView extends Component {
 function _urlPersonDetails(id) {
   API_KEY = config.API_KEY;
   var queryString = 'https://api.themoviedb.org/3/person/' + id + '?api_key=' + API_KEY;
+  return queryString;
+}
+
+function _urlBiblography(id) {
+  API_KEY = config.API_KEY;
+  var queryString = 'https://api.themoviedb.org/3/person/' + id + '/combined_credits?api_key=' + API_KEY;
   return queryString;
 }
 
