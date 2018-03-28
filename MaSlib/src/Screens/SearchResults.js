@@ -27,7 +27,7 @@ class ListItem extends React.PureComponent {
         return 'No title'
       }
     };
-   
+
     return (
       <TouchableHighlight
         onPress={this._onPress}
@@ -68,7 +68,7 @@ export default class SearchResults extends Component {
 
 _onPressItem = (index) => {
   const { navigate, state } = this.props.navigation;
-  navigate('Property', {property: state.params.listings[index]});
+  navigate('Suggestion', {property: state.params.listings[index], media_type: state.params.listings[index].media_type});
 };
 
   render() {
