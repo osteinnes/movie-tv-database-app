@@ -55,6 +55,7 @@ export default class PersonView extends Component {
     this.state = {
       details: [],
       biblography: [],
+      images:  [],
     };
   }
 
@@ -69,13 +70,7 @@ export default class PersonView extends Component {
     console.log(error)
     );
 
-    var biblographyUrl = _urlBiblography(params.id);
-    fetch(biblographyUrl)
-    .then(response => response.json())
-    .then(json => this._handleBiblographyResponse(json))
-    .catch(error =>
-    console.log(error)
-  );
+
 };
 
 componentDidMount() {
@@ -87,8 +82,22 @@ componentDidMount() {
   .then(json => this._handleBiblographyResponse(json))
   .catch(error =>
   console.log(error)
-);
+  );
+  var imagesUrl = _urlImages(params.id);
+  fetch(imagesUrl)
+  .then(response => response.json())
+  .then(json => this._handleImageResponse(json))
+  .catch(error =>
+  console.log(error)
+  );
+
 };
+
+  _handleImageResponse(response) {
+    this.setState({
+      images: response.profiles,
+    });
+  };
 
   _handleBiblographyResponse(response) {
     this.setState({
@@ -192,6 +201,7 @@ componentDidMount() {
             </TriggeringView>
 
           </View>
+
       </HeaderImageScrollView>
     );
   }
@@ -210,6 +220,61 @@ function _urlBiblography(id) {
   API_KEY = config.API_KEY;
   var queryString = 'https://api.themoviedb.org/3/person/' + id + '/combined_credits?api_key=' + API_KEY;
   return queryString;
+}
+
+function _urlImages(id) {
+  API_KEY = config.API_KEY;
+  var queryString = 'https://api.themoviedb.org/3/person/' + id + '/images?api_key=' + API_KEY;
+  return queryString;
+}
+
+function doDrawSimilar(state, _deckSwiper) {
+
+    return(
+      <Container style={styles.containerDeck}>
+      <View style={{ flex: 1, padding: 12 }}>
+          <DeckSwiper
+            ref={mr => (_deckSwiper = mr)}
+            dataSource={state.images}
+            looping={true}
+            renderEmpty={() =>
+              <View style={{ alignSelf: "center" }}>
+                <Text>Over</Text>
+              </View>}
+            renderItem={item =>
+
+              <Card style={{ elevation: 3 }}>
+
+                <CardItem cardBody>
+                  <Image
+                    style={{
+                      resizeMode: "cover",
+                      width: null,
+                      flex: 1,
+                      height: 300
+                    }}
+                    source={{uri: 'https://image.tmdb.org/t/p/w500' +  item.file_path}}
+                  />
+                </CardItem>
+              </Card>
+            }
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            flex: 1,
+            position: "absolute",
+            bottom: 50,
+            left: 0,
+            right: 0,
+            justifyContent: "space-between",
+            padding: 15
+          }}
+        >
+        </View>
+</Container>
+    );
 }
 
 /////////////////////////////////////////////
