@@ -9,6 +9,8 @@ import {
   ImageBackground,
   DrawerLayoutAndroid,
   TouchableHighlight,
+  TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 
@@ -38,7 +40,7 @@ import {
   Text,
 } from 'native-base';
 
-import Carousel from 'react-native-snap-carousel';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 
 import config from '../config.js';
 
@@ -81,6 +83,14 @@ export default class SuggestionView extends Component {
       imgurl: imgUrl,
     })
 
+    var cast = _urlCast(params.property.id, params.media_type);
+    fetch(cast)
+    .then(response => response.json())
+    .then(json => this._handleCastResponse(json))
+    .catch(error =>
+    console.log(error)
+   );
+
     var recommended = _urlRecommendedMedia(params.property.id, params.media_type);
     fetch(recommended)
     .then(response => response.json())
@@ -88,14 +98,6 @@ export default class SuggestionView extends Component {
     .catch(error =>
      console.log(error)
    );
-
-   var cast = _urlCast(params.property.id, params.media_type);
-   fetch(cast)
-   .then(response => response.json())
-   .then(json => this._handleCastResponse(json))
-   .catch(error =>
-   console.log(error)
-  );
 
   }
 
@@ -105,6 +107,8 @@ export default class SuggestionView extends Component {
       cast: response.cast,
       castPresent: true,
     });
+
+    console.log(response.cast);
 
   };
 
@@ -155,6 +159,36 @@ export default class SuggestionView extends Component {
    this.props.navigation.navigate('Property', {property: this.state.rFi});
  };
 
+ onSelection = (item) => {
+ console.log(item.name)
+}
+
+renderItems = ({ item }) => {
+return(
+
+  <TouchableOpacity
+    onPress={() => this.onSelection(item)}>
+    <View style={{backgroundColor: '#3e4144'}}>
+    <Card>
+      <CardItem header style={styles.cardItems}>
+      <Text>
+        {item.name}
+      </Text>
+      </CardItem>
+      <CardItem header style={{alignSelf: 'center', marginTop: -35, backgroundColor: 'transparent'}}>
+      <Text note>
+       {item.character}
+      </Text>
+      </CardItem>
+        <CardItem style={{backgroundColor: 'transparent'}}>
+        <ImageBackground style={styles.cardImage} source={{uri: 'https://image.tmdb.org/t/p/w185' + item.profile_path}}/>
+        </CardItem>
+    </Card>
+    </View>
+  </TouchableOpacity>
+)
+}
+
   render() {
     return (
     <HeaderImageScrollView
@@ -177,13 +211,28 @@ export default class SuggestionView extends Component {
         <TriggeringView onHide={() => console.log('text hidden')}>
           <Text style={styles.title}>{this.state.title}</Text>
           <Text style={styles.text}>{this.state.summary}</Text>
-          {doDrawTextIfSimilar(this.state.similar)}
 
+          <Text style={styles.title}>Cast</Text>
+          <FlatList
+             horizontal
+             data={this.state.cast}
+             renderItem={this.renderItems}
+             enableEmptySections
+             keyExtractor={item => item.order}
+             ItemSeparatorComponent={this.renderSeparator}
+           />
         </TriggeringView>
 
        </View>
-        {doDrawSimilar(this.state.similar, this.props, this.state, this._deckSwiper)}
-        {doDrawCastMembers(this.state.similar, this.props, this.state, this._deckSwiper2)}
+
+
+       <View style={{marginTop: 0, backgroundColor: '#3e4144' }}>
+         <TriggeringView onHide={() => console.log('text hidden')}>
+           {doDrawTextIfSimilar(this.state.similar)}
+         </TriggeringView>
+        </View>
+       {doDrawSimilar(this.state.similar, this.props, this.state, this._deckSwiper)}
+
       </HeaderImageScrollView>
 
 
@@ -358,19 +407,6 @@ function doDrawSimilar(similar, props, state, _deckSwiper) {
           }
         />
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          flex: 1,
-          position: "absolute",
-          bottom: 50,
-          left: 0,
-          right: 0,
-          justifyContent: "space-between",
-          padding: 15
-        }}
-      >
-      </View>
 </Container>
   );
 } else {
@@ -385,8 +421,8 @@ function doDrawCastMembers(similar, props, state, _deckSwiper) {
 
   if (state.castPresent == true) {
     return(
-      <Container style={styles.containerDeck}>
-      <View style={{ flex: 1, padding: 12 }}>
+      <Container style={styles.containerDeck2}>
+      <View style={{ flex: 1, padding: 2 }}>
           <DeckSwiper
             ref={mf => (_deckSwiper = mf)}
             dataSource={state.cast}
@@ -436,19 +472,6 @@ function doDrawCastMembers(similar, props, state, _deckSwiper) {
             }
           />
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            flex: 1,
-            position: "absolute",
-            bottom: 50,
-            left: 0,
-            right: 0,
-            justifyContent: "space-between",
-            padding: 15
-          }}
-        >
-        </View>
 </Container>
     );
 
@@ -456,10 +479,6 @@ function doDrawCastMembers(similar, props, state, _deckSwiper) {
   return null;
 }
 };
-
-
-
-
 
 //////////////////////////////////////////////////////////
 
@@ -471,19 +490,25 @@ const styles = StyleSheet.create({
   },
   containerDeck: {
     backgroundColor: '#3e4144',
-},
+  },
+  containerDeck2: {
+    backgroundColor: '#3e4144',
+    marginTop: -0,
+  },
   cardItems: {
     alignSelf: 'center',
+    marginBottom: 0,
+    backgroundColor: 'transparent',
   },
   heading: {
     backgroundColor: '#F8F8F8',
   },
   cardImage: {
-    height: 180,
-    width: null,
-    flex: 1,
+    height: 185,
+    width: 185,
     alignItems: 'center',
-    backgroundColor: '#3e4144',
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
   },
   headerText:{
     textAlign: 'center',
@@ -517,5 +542,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     margin: 5,
     color: '#656565'
+  },
+  imageContainer: {
+        flex: 1,
+        backgroundColor: 'white',
+        //borderTopLeftRadius: entryBorderRadius,
+        //borderTopRightRadius: entryBorderRadius
   },
 });
