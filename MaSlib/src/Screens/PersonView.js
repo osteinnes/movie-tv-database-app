@@ -54,6 +54,7 @@ export default class PersonView extends Component {
 
     this.state = {
       details: [],
+      biblography: [],
     };
   }
 
@@ -75,16 +76,24 @@ export default class PersonView extends Component {
     .catch(error =>
     console.log(error)
   );
-  }
+};
+
+componentDidMount() {
+  const {params} = this.props.navigation.state;
+
+  var biblographyUrl = _urlBiblography(params.id);
+  fetch(biblographyUrl)
+  .then(response => response.json())
+  .then(json => this._handleBiblographyResponse(json))
+  .catch(error =>
+  console.log(error)
+);
+};
 
   _handleBiblographyResponse(response) {
-
     this.setState({
-      biblography: response,
+      biblography: response.cast,
     });
-
-
-    console.log(response);
   };
 
   _handleDetailsResponse(response) {
@@ -146,7 +155,7 @@ export default class PersonView extends Component {
 
   render() {
 
-    console.log(this.state.biblography);
+    console.log('what the fuck' + this.state.biblography.toString());
 
     return(
       <HeaderImageScrollView
@@ -176,7 +185,7 @@ export default class PersonView extends Component {
                data={this.state.biblography}
                renderItem={this.renderItems}
                enableEmptySections
-               keyExtractor={item => item.key}
+               keyExtractor={(item, index) => index}
                ItemSeparatorComponent={this.renderSeparator}
              />
 
