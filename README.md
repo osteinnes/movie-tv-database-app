@@ -3,4 +3,4 @@ React Native application where you can search for movies and tv shows. Displays 
 
 ## Demo as of 26.03.18
 
-![](https://github.com/osteinnes/movie-tv-database-app/blob/master/MaSlib/src/assets/demo/movie-demo3.gif?raw=true)
+![](https://github.com/osteinnes/movie-tv-database-app/blob/master/MaSlib/src/assets/demo/movie-demo4.gif?raw=true)
