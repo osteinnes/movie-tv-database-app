@@ -160,7 +160,8 @@ export default class SuggestionView extends Component {
  };
 
  onSelection = (item) => {
- console.log(item.name)
+   console.log(item.name)
+   this.props.navigation.navigate('Person', {id: item.id});
 }
 
 renderItems = ({ item }) => {
